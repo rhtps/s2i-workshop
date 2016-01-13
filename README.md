@@ -179,3 +179,96 @@ When you are done
 
 [ec2-user@ip-10-0-0-XX golang-s2i]$ docker rm chat
 ```
+---
+## Preparing for OpenShift
+### Template
+```yaml
+apiVersion: v1
+kind: Template
+labels:
+  template: golang
+metadata:
+  annotations:
+    description: A basic builder for Golang applications
+    iconClass: icon-git
+    tags: golang
+  creationTimestamp: null
+  name: golang
+objects:
+  ...
+```
+### ImageStreams
+```yaml
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    name: golang-builder
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    name: ${APPLICATION_NAME}
+```
+### BuildConfiguration
+```yaml
+objects:
+…
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+    name: golang-builder
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: golang-builder:latest
+    source:
+      contextDir: ${BUILDER_CONTEXT_DIR}
+      git:
+        ref: ${BUILDER_SOURCE_REPOSITORY_REF}
+        uri: ${BUILDER_SOURCE_REPOSITORY_URL}
+      type: Git
+    strategy:
+      dockerStrategy:
+      type: Docker
+    triggers:
+    - type: ConfigChange
+    - github:
+        secret: ${BUILDER_GITHUB_WEBHOOK_SECRET}
+      type: GitHub
+  - apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+    name: ${APPLICATION_NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}:latest
+    source:
+      contextDir: ${APP_CONTEXT_DIR}
+      git:
+        ref: ${APP_SOURCE_REPOSITORY_REF}
+        uri: ${APP_SOURCE_REPOSITORY_URL}
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: golang-builder:latest
+      type: Source
+    triggers:
+    - type: ImageChange
+    - type: ConfigChange
+    - github:
+        secret: ${APP_GITHUB_WEBHOOK_SECRET}
+      type: GitHub
+```
