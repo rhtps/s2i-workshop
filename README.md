@@ -127,6 +127,9 @@ EXPOSE 8080
 ### S2I - Step 4
 ```bash
 [ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/assemble
+```
+And ensure the file matches the following
+```bash
 #!/bin/bash -e #
 # S2I assemble script for the 'golang-s2i' image.
 cd $GOPATH/destination/src
@@ -137,7 +140,42 @@ mv src goexec
 ### S2I - Step 5
 ```bash
 [ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/run
+```
+And ensure the file matches the following
+```bash
 #!/bin/bash –e
 exec $GOBIN/goexec $ARG
+```
+### S2I - Step 6
+```bash
+[ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/save-artifacts
+```
+And ensure the file matches the following
+```bash
+#!/bin/bash –e
 
+cd $GOPATH
+tar cf - pkg bin src
+```
+### S2I - Step 7
+```bash
+[ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/usage
+```
+### S2I - Step 8
+```bash
+[ec2-user@ip-10-0-0-XX golang-s2i]$ docker build –t golang-s2i .
+
+# s2i build <source location> <builder image> [<tag>] [flags]
+
+[ec2-user@ip-10-0-0-XX golang-s2i]$ s2i build https://github.com/rhtps/gochat.git golang-s2i gochat
+```
+### S2I - Step 9
+```bash
+[ec2-user@ip-10-0-0-XX golang-s2i]$ docker run -e "ARGS=-host=0.0.0.0:8080 -callBackHost=student01.s2i.rhtps.io:8080 -templatePath=/opt/go/src/github.com/rhtps/gochat/templates -avatarPath=/opt/go/src/github.com/rhtps/gochat/avatars" -p 8080:8080 -d --name chat gochat
+```
+When you are done
+```bash
+[ec2-user@ip-10-0-0-XX golang-s2i]$ docker stop chat
+
+[ec2-user@ip-10-0-0-XX golang-s2i]$ docker rm chat
 ```
