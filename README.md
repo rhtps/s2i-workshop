@@ -242,7 +242,7 @@ objects:
     - github:
         secret: ${BUILDER_GITHUB_WEBHOOK_SECRET}
       type: GitHub
-  - apiVersion: v1
+- apiVersion: v1
   kind: BuildConfig
   metadata:
     annotations:
