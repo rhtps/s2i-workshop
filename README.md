@@ -94,6 +94,9 @@ This document contains the code/configuration snippets corresponding to the work
 ### S2I - Step 3
 ```bash
 [ec2-user@ip-10-0-0-XX golang-s2i]$ vi Dockerfile
+```
+And then paste the following Content
+```bash
 # golang-s2i
 FROM rhel7
 
