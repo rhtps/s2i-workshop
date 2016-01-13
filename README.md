@@ -272,3 +272,112 @@ objects:
         secret: ${APP_GITHUB_WEBHOOK_SECRET}
       type: GitHub
 ```
+### DeploymentConfiguration
+```yaml
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${APPLICATION_NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${APPLICATION_NAME}
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: ${APPLICATION_NAME}
+        name: ${APPLICATION_NAME}
+      spec:
+        containers:
+        - env:
+          - name: ARGS
+            value: ${APP_ARGS}
+          image: ${APPLICATION_NAME}
+          name: ${APPLICATION_NAME}
+          ports:
+          - containerPort: 8080
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}:latest
+      type: ImageChange
+    - type: ConfigChange
+```
+### Services
+```yaml
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+    name: ${APPLICATION_NAME}
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: ${APPLICATION_NAME}
+```
+### Route
+```yaml
+- apiVersion: v1
+  id: ${APPLICATION_NAME}
+  kind: Route
+  metadata:
+    annotations:
+      description: Route for application's http service.
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
+  spec:
+    host: ${APPLICATION_DOMAIN}
+    to:
+      name: ${APPLICATION_NAME}
+```
+### Parameters
+```yaml
+parameters:
+- description: The URL of the repository with your Golang S2I builder Dockerfile
+  name: BUILDER_SOURCE_REPOSITORY_URL
+  value: https://github.com/rhtps/golang-s2i.git
+- description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch
+  name: BUILDER_SOURCE_REPOSITORY_REF
+- description: Set this to the relative path to your project if it is not in the root
+    of your repository
+  name: BUILDER_CONTEXT_DIR
+- description: A secret string used to configure the GitHub webhook for the builder repo
+  from: '[a-zA-Z0-9]{40}'
+  generate: expression
+  name: BUILDER_GITHUB_WEBHOOK_SECRET
+- description: The URL of the repository with your Golang application code
+  name: APP_SOURCE_REPOSITORY_URL
+- description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch
+  name: APP_SOURCE_REPOSITORY_REF
+- description: Set this to the relative path to your project if it is not in the root
+    of your repository
+  name: APP_CONTEXT_DIR
+- description: A secret string used to configure the GitHub webhook for the app repo
+  from: '[a-zA-Z0-9]{40}'
+  generate: expression
+  name: APP_GITHUB_WEBHOOK_SECRET
+- description: The name for the application.
+  name: APPLICATION_NAME
+  required: true
+  value: golang-app
+- description: 'Custom hostname for service routes.  Leave blank for default hostname,
+    e.g.: <application-name>.<project>.<default-domain-suffix>'
+  name: APPLICATION_DOMAIN
+- description: Command line arguments to provide to the Golang application
+  name: APP_ARGS
+```
