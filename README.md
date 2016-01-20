@@ -2,6 +2,34 @@
 # Source-to-Image Workshop Content
 
 This document contains the code/configuration snippets corresponding to the workshop slides.
+
+* [Source-to-Image Workshop Content](#source-to-image-workshop-content)
+    * [Option 1 - Dockerfile](#option-1---dockerfile)
+      * [Dockerfile - Step 1](#dockerfile---step-1)
+      * [Dockerfile - Step 2](#dockerfile---step-2)
+      * [Dockerfile - Step 3](#dockerfile---step-3)
+      * [Dockerfile - Step 4](#dockerfile---step-4)
+    * [Option 2 - Source-to-Image (S2I)](#option-2---source-to-image-s2i)
+      * [S2I - Step 1](#s2i---step-1)
+      * [S2I - Step 2](#s2i---step-2)
+      * [S2I - Step 3](#s2i---step-3)
+      * [S2I - Step 4](#s2i---step-4)
+      * [S2I - Step 5](#s2i---step-5)
+      * [S2I - Step 6](#s2i---step-6)
+      * [S2I - Step 7](#s2i---step-7)
+      * [S2I - Step 8](#s2i---step-8)
+      * [S2I - Step 9](#s2i---step-9)
+    * [Preparing for OpenShift](#preparing-for-openshift)
+      * [Template](#template)
+      * [ImageStreams](#imagestreams)
+      * [BuildConfiguration](#buildconfiguration)
+      * [DeploymentConfiguration](#deploymentconfiguration)
+      * [Services](#services)
+      * [Route](#route)
+      * [Parameters](#parameters)
+      * [Final](#final)
+
+
 ## Option 1 - Dockerfile
 ### Dockerfile - Step 1
 ```shell
@@ -381,3 +409,6 @@ parameters:
 - description: Command line arguments to provide to the Golang application
   name: APP_ARGS
 ```
+### Final
+Working on this part.
+###
