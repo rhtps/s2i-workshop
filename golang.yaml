@@ -5,7 +5,7 @@ labels:
 metadata:
   annotations:
     description: A basic builder for Golang applications
-    iconClass: icon-git
+    iconClass: icon-go-gopher
     tags: golang
   creationTimestamp: null
   name: golang

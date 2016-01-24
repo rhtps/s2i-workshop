@@ -218,7 +218,7 @@ labels:
 metadata:
   annotations:
     description: A basic builder for Golang applications
-    iconClass: icon-git
+    iconClass: icon-go-gopher
     tags: golang
   creationTimestamp: null
   name: golang
@@ -410,5 +410,19 @@ parameters:
   name: APP_ARGS
 ```
 ### Final
-Working on this part.
+
+Log in to OpenShift from the command line
+```bash
+[ec2-user@ip-10-0-0-XX golang-s2i]$ oc login https://master.ose31.ravello.kenscloud.io:8443
+
+[ec2-user@ip-10-0-0-XX golang-s2i]$ oc new-project golang
+
+[ec2-user@ip-10-0-0-XX golang-s2i]$ oc create -f golang.yaml
+
+```
+Application arguments (APP_ARGS)
+```bash
+-host=0.0.0.0:8080 -callBackHost=student01.s2i.rhtps.io:8080 -templatePath=/opt/go/src/github.com/rhtps/gochat/templates -avatarPath=/opt/go/src/github.com/rhtps/gochat/avatars
+```
+
 ###
