@@ -29,62 +29,78 @@ This document contains the code/configuration snippets corresponding to the work
       * [Parameters](#parameters)
       * [Final](#final)
 
+## Pre Docker
+### Pre Docker - Step 1
+```shell
+#Power up your Vagrant VM and SSH to it
+$ vagrant up
 
+$ vagrant ssh
+
+#Set the environment variables
+[vagrant@rhel-cdk ~]$ cat <<EOF >> ~/.bashrc
+export GOPATH=$HOME/go
+export GOBIN=/home/vagrant/go/bin
+export PATH=$PATH:/home/vagrant/go/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/:/home/vagrant/go/bin
+EOF
+
+[vagrant@rhel-cdk ~]$ source ~/.bashrc
+```
+### Pre Docker - Step 2
+```shell
+# Obtain golang tooling
+[vagrant@rhel-cdk ~]$ cd ~
+
+[vagrant@rhel-cdk ~]$ git clone https://github.com/kevensen/atomic-go.git
+
+[vagrant@rhel-cdk ~]$ cd atomic-go
+
+[vagrant@rhel-cdk atomic-go]$ ./setup.sh
+```
+### Pre Docker - Step 3
+```shell
+# Download and build the Gochat application
+[vagrant@rhel-cdk ~]$ cd ~
+
+[vagrant@rhel-cdk ~]$ go get github.com/rhtps/gochat
+
+[vagrant@rhel-cdk ~]$ go build github.com/rhtps/gochat
+```
+### Pre Docker - Step 4
+```shell
+[vagrant@rhel-cdk ~]$ gochat -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
+```
 ## Option 1 - Dockerfile
+The following steps are performed in your Vagrant CDK VM.
 ### Dockerfile - Step 1
 ```shell
-#SSH to your instance using the provided key.
-[user@localhost] ssh –i <keyfile> ec2-user@studentXX.s2i.rhtps.io
+[vagrant@rhel-cdk ~]$ cd ~
 
-#Echo the $GOPATH variable.
-[ec2-user@ip-10-0-0-XX ~]$ echo $GOPATH
-/home/ec2-user/golang
+[vagrant@rhel-cdk ~]$ git clone https://github.com/rhtps/gochat-docker.git
 
-#Change directory to $GOPATH
-[ec2-user@ip-10-0-0-XX ~]$ cd $GOPATH
-```
-### Dockerfile - Step 2
-```bash
-#Obtain the source code for "gochat".  This downloads all dependencies as well.
-[ec2-user@ip-10-0-0-XX ~]$ go get github.com/rhtps/gochat
-
-[ec2-user@ip-10-0-0-XX ~]$ cd $GOPATH/src/github.com/rhtps/gochat
-
-[ec2-user@ip-10-0-0-XX gochat]$ go build
-
-#Start "gochat" binding 8080 to the host's interface.  The callbackHost is relevant if you use an omniauth provider like github.
-[ec2-user@ip-10-0-0-XX gochat]$ ./gochat -host=0.0.0.0:8080 -callBackHost=studentXX.s2i.rhtps.io:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -githubProviderKey=<provided> -githubProviderSecretKey=<provided>
-#OR
-[ec2-user@ip-10-0-0-XX gochat]$ ./gochat -host=0.0.0.0:8080
+[vagrant@rhel-cdk ~]$ less gochat-docker/Dockerfile
 ```
 ### Dockerfile - Step 3
-```bash
-[ec2-user@ip-10-0-0-XX ~]$ cd ~
+```shell
+# Build the image
+[vagrant@rhel-cdk ~]$ cd ~/gochat-docker
 
-[ec2-user@ip-10-0-0-XX ~]$ git clone https://github.com/rhtps/gochat-docker.git
-
-[ec2-user@ip-10-0-0-XX gochat-docker]$ cd gochat-docker
-
-[ec2-user@ip-10-0-0-XX gochat-docker]$ vi Dockerfile
-#Take note of the directives.  Quit when you are finished.
-
-[ec2-user@ip-10-0-0-XX gochat-docker]$ sudo systemctl start docker
-
-[ec2-user@ip-10-0-0-XX gochat-docker]$ docker build -t chat .
+[vagrant@rhel-cdk gochat-docker]$ docker build -t gochat-docker .
 ```
 ### Dockerfile - Step 4
-```bash
-[ec2-user@ip-10-0-0-XX gochat-docker]$ docker run -d -p 8080:8080 --name gochat chat -host=0.0.0.0:8080 -callBackHost=student01.s2i.rhtps.io:8080 -templatePath=/opt/golang/github.com/rhtps/gochat/templates -avatarPath=/opt/golang/github.com/rhtps/gochat/avatars
+```shell
+# Start the gochat container
+[vagrant@rhel-cdk ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=/opt/golang/src/github.com/rhtps/gochat/templates -avatarPath=/opt/golang/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/golang/src/github.com/rhtps/gochat/htpasswd
+```
+### Dockerfile - Step 5
+```shell
+[vagrant@rhel-cdk ~]$ docker stop gochat
 
-[ec2-user@ip-10-0-0-XX gochat-docker]$ docker stop gochat
-
-#Note the stopped container
-[ec2-user@ip-10-0-0-XX gochat-docker]$ docker ps -a
-
-[ec2-user@ip-10-0-0-XX gochat-docker]$ docker rm gochat
+[vagrant@rhel-cdk ~]$ docker rm gochat
 ```
 ---
 ## Option 2 - Source-to-Image (S2I)
+The following steps are performed in your Vagrant CDK VM.
 ### S2I - Step 1
 ```bash
 [ec2-user@ip-10-0-0-XX ~]$ go get github.com/openshift/source-to-image
