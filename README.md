@@ -3,32 +3,43 @@
 
 This document contains the code/configuration snippets corresponding to the workshop slides.
 
-* [Source-to-Image Workshop Content](#source-to-image-workshop-content)
-    * [Option 1 - Dockerfile](#option-1---dockerfile)
-      * [Dockerfile - Step 1](#dockerfile---step-1)
-      * [Dockerfile - Step 2](#dockerfile---step-2)
-      * [Dockerfile - Step 3](#dockerfile---step-3)
-      * [Dockerfile - Step 4](#dockerfile---step-4)
-    * [Option 2 - Source-to-Image (S2I)](#option-2---source-to-image-s2i)
-      * [S2I - Step 1](#s2i---step-1)
-      * [S2I - Step 2](#s2i---step-2)
-      * [S2I - Step 3](#s2i---step-3)
-      * [S2I - Step 4](#s2i---step-4)
-      * [S2I - Step 5](#s2i---step-5)
-      * [S2I - Step 6](#s2i---step-6)
-      * [S2I - Step 7](#s2i---step-7)
-      * [S2I - Step 8](#s2i---step-8)
-      * [S2I - Step 9](#s2i---step-9)
-    * [Preparing for OpenShift](#preparing-for-openshift)
-      * [Template](#template)
-      * [ImageStreams](#imagestreams)
-      * [BuildConfiguration](#buildconfiguration)
-      * [DeploymentConfiguration](#deploymentconfiguration)
-      * [Services](#services)
-      * [Route](#route)
-      * [Parameters](#parameters)
-      * [Final](#final)
+<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
+- [Pre Docker](#pre-docker)
+	- [Pre Docker - Step 1](#pre-docker-step-1)
+	- [Pre Docker - Step 2](#pre-docker-step-2)
+	- [Pre Docker - Step 3](#pre-docker-step-3)
+	- [Pre Docker - Step 4](#pre-docker-step-4)
+	- [Pre Docker - Step 5](#pre-docker-step-5)
+	- [Pre Docker - Step 6](#pre-docker-step-6)
+- [Option 1 - Dockerfile](#option-1-dockerfile)
+	- [Dockerfile - Step 1](#dockerfile-step-1)
+	- [Dockerfile - Step 2](#dockerfile-step-2)
+	- [Dockerfile - Step 3](#dockerfile-step-3)
+	- [Dockerfile - Step 4](#dockerfile-step-4)
+- [Option 2 - Source-to-Image (S2I)](#option-2-source-to-image-s2i)
+	- [S2I - Step 1](#s2i-step-1)
+	- [S2I - Step 2](#s2i-step-2)
+	- [S2I - Step 3](#s2i-step-3)
+	- [S2I - Step 4](#s2i-step-4)
+	- [S2I - Step 5](#s2i-step-5)
+	- [S2I - Step 6](#s2i-step-6)
+	- [S2I - Step 7](#s2i-step-7)
+	- [S2I - Step 8](#s2i-step-8)
+	- [S2I - Step 9](#s2i-step-9)
+	- [S2I - Step 10](#s2i-step-10)
+- [Preparing for OpenShift](#preparing-for-openshift)
+	- [Template](#template)
+	- [ImageStreams](#imagestreams)
+	- [BuildConfiguration](#buildconfiguration)
+	- [DeploymentConfiguration](#deploymentconfiguration)
+	- [Services](#services)
+	- [Route](#route)
+	- [Parameters](#parameters)
+	- [Final](#final)
+	- [](#)
+
+<!-- /TOC -->
 ## Pre Docker
 ### Pre Docker - Step 1
 ```shell
@@ -39,9 +50,10 @@ $ vagrant ssh
 
 #Set the environment variables
 [vagrant@rhel-cdk ~]$ cat <<EOF >> ~/.bashrc
-export GOPATH=$HOME/go
-export GOBIN=/home/vagrant/go/bin
-export PATH=$PATH:/home/vagrant/go/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/:/home/vagrant/go/bin
+export GOROOT=$HOME/go
+export GOPATH=$HOME/work
+export GOBIN=$HOME/work/bin
+export PATH=$PATH:$HOME/work/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/:$HOME/go/bin:$HOME/work/bin:$HOME/bzr-2.7.0
 EOF
 
 [vagrant@rhel-cdk ~]$ source ~/.bashrc
@@ -49,24 +61,39 @@ EOF
 ### Pre Docker - Step 2
 ```shell
 # Obtain golang tooling
-[vagrant@rhel-cdk ~]$ cd ~
+[vagrant@rhel-cdk ~]$ curl -k -o go1.6.2.linux-amd64.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
 
-[vagrant@rhel-cdk ~]$ git clone https://github.com/kevensen/atomic-go.git
-
-[vagrant@rhel-cdk ~]$ cd atomic-go
-
-[vagrant@rhel-cdk atomic-go]$ ./setup.sh
+[vagrant@rhel-cdk ~]$ tar -xvf go1.6.2.linux-amd64.tar.gz
 ```
 ### Pre Docker - Step 3
 ```shell
-# Download and build the Gochat application
-[vagrant@rhel-cdk ~]$ cd ~
+# Obtain Canonical Bazaar
+[vagrant@rhel-cdk ~]$ curl -k -L -o bzr.tar.gz https://launchpad.net/bzr/2.7/2.7.0/+download/bzr-2.7.0.tar.gz
 
-[vagrant@rhel-cdk ~]$ go get github.com/rhtps/gochat
+[vagrant@rhel-cdk ~]$ tar -xvf bzr.tar.gz
 
-[vagrant@rhel-cdk ~]$ go build github.com/rhtps/gochat
 ```
 ### Pre Docker - Step 4
+```shell
+#Adjust date and time
+[vagrant@rhel-cdk ~]$ date
+Sun Jul 10 07:21:24 EDT 2016
+
+#If this isn't right, we need to correct it
+[vagrant@rhel-cdk ~]$ sudo timedatectl 2016-07-10
+
+[vagrant@rhel-cdk ~]$ sudo timedatectl 07:22:30
+```
+### Pre Docker - Step 5
+```shell
+#Download and build the gochat application
+[vagrant@rhel-cdk ~]$ cd ~
+
+[vagrant@rhel-cdk ~]$ go get -insecure github.com/rhtps/gochat
+
+[vagrant@rhel-cdk ~]$ go install github.com/rhtps/gochat
+```
+### Pre Docker - Step 6
 ```shell
 [vagrant@rhel-cdk ~]$ gochat -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
 ```
@@ -80,19 +107,19 @@ The following steps are performed in your Vagrant CDK VM.
 
 [vagrant@rhel-cdk ~]$ less gochat-docker/Dockerfile
 ```
-### Dockerfile - Step 3
+### Dockerfile - Step 2
 ```shell
 # Build the image
 [vagrant@rhel-cdk ~]$ cd ~/gochat-docker
 
 [vagrant@rhel-cdk gochat-docker]$ docker build -t gochat-docker .
 ```
-### Dockerfile - Step 4
+### Dockerfile - Step 3
 ```shell
 # Start the gochat container
-[vagrant@rhel-cdk ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=/opt/golang/src/github.com/rhtps/gochat/templates -avatarPath=/opt/golang/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/golang/src/github.com/rhtps/gochat/htpasswd
+[vagrant@rhel-cdk ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
 ```
-### Dockerfile - Step 5
+### Dockerfile - Step 4
 ```shell
 [vagrant@rhel-cdk ~]$ docker stop gochat
 
@@ -102,26 +129,22 @@ The following steps are performed in your Vagrant CDK VM.
 ## Option 2 - Source-to-Image (S2I)
 The following steps are performed in your Vagrant CDK VM.
 ### S2I - Step 1
-```bash
-[ec2-user@ip-10-0-0-XX ~]$ go get github.com/openshift/source-to-image
+```shell
+[vagrant@rhel-cdk ~]$ go get github.com/openshift/source-to-image
 
-[ec2-user@ip-10-0-0-XX ~]$ cd $GOPATH/src/github.com/openshift/source-to-image
+[vagrant@rhel-cdk ~]$ cd $GOPATH/src/github.com/openshift/source-to-image
 
-[ec2-user@ip-10-0-0-XX source-to-image]$ export PATH=$PATH:$GOPATH/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/
+[vagrant@rhel-cdk source-to-image]$ export PATH=$PATH:$GOPATH/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/
 
-[ec2-user@ip-10-0-0-XX source-to-image]$ hack/build-go.sh
+[vagrant@rhel-cdk source-to-image]$ hack/build-go.sh
 ```
 ### S2I - Step 2
-```bash
-[ec2-user@ip-10-0-0-XX ~]$ cd ~
+```shell
+[vagrant@rhel-cdk ~]$ cd ~
 
-[ec2-user@ip-10-0-0-XX ~]$ mkdir golang-s2i
+[vagrant@rhel-cdk ~]$ s2i create golang-s2i golang-s2i
 
-[ec2-user@ip-10-0-0-XX ~]$ cd golang-s2i
-
-[ec2-user@ip-10-0-0-XX golang-s2i]$ s2i create golang-s2i .
-
-[ec2-user@ip-10-0-0-XX golang-s2i]$ tree -a
+[vagrant@rhel-cdk golang-s2i]$ tree -a golang-s2i
 .
 ├── Dockerfile
 ├── Makefile
@@ -136,92 +159,114 @@ The following steps are performed in your Vagrant CDK VM.
     └── test-app
 ```
 ### S2I - Step 3
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ vi Dockerfile
+```shell
+[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/Dockerfile
+
+[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/Dockerfile
 ```
 And then paste the following Content
-```bash
+```docker
 # golang-s2i
 FROM rhel7
 
 MAINTAINER Kenneth D. Evensen <kevensen@redhat.com>
 
+ARG GO_VERSION=1.6.2
 ENV BUILDER_VERSION 1.0
-ENV GOPATH /opt/go
-ENV GOBIN /opt/go/bin
-ENV PATH $PATH:$GOBIN
+ENV HOME /opt/app-root
+ENV GOPATH $HOME/gopath
+ENV GOBIN $GOPATH/bin
+ENV GOROOT $HOME/go
+ENV PATH $PATH:$GOROOT/bin:$GOBIN
 
 LABEL io.k8s.description="Platform for building go based programs" \
       io.k8s.display-name="gobuilder 0.0.1" \
       io.openshift.expose-services="8080:http" \
       io.openshift.tags="gobuilder,0.0.1" \
-      io.openshift.s2i.scripts-url="image://usr/local/s2i" \
-      io.openshift.s2i.destination="/opt/go/destination"
+      io.openshift.s2i.scripts-url="image:///usr/local/s2i" \
+      io.openshift.s2i.destination="/opt/app-root/destination"
 
-RUN yum install -y --disablerepo='*' --enablerepo='rhel-7-server-rpms' --enablerepo='rhel-7-server-optional-rpms' golang tar git-bzr && yum clean all; rm -rf /var/cache/yum
+RUN yum clean all && \
+    yum install -y --disablerepo='*' --enablerepo='rhel-7-server-rpms' --enablerepo='rhel-7-server-optional-rpms' tar git-bzr && yum clean all && rm -rf /var/cache/yum/*
 
 COPY ./.s2i/bin/ /usr/local/s2i
-RUN useradd 1001
-RUN mkdir -p /opt/go/destination/{src,artifacts}; chown -R 1001:1001 /opt/
+RUN useradd -u 1001 -r -g 0 -d ${HOME} -s /sbin/nologin -c "Default Application User" default && \
+    mkdir -p /opt/app-root/destination/{src,artifacts} && \
+    curl -o $HOME/go${GO_VERSION}.linux-amd64.tar.gz https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -C $HOME -xvf $HOME/go${GO_VERSION}.linux-amd64.tar.gz && \
+    rm -f $HOME/go${GO_VERSION}.linux-amd64.tar.gz && \
+    chown -R 1001:0 $HOME && chmod -R og+rwx ${HOME}
 
+WORKDIR ${HOME}
 USER 1001
-
 EXPOSE 8080
 ```
 ### S2I - Step 4
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/assemble
+```shell
+[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/assemble
+
+[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/assemble
 ```
 And ensure the file matches the following
-```bash
+```shell
 #!/bin/bash -e #
 # S2I assemble script for the 'golang-s2i' image.
-cd $GOPATH/destination/src
-go get -v .
+cd $HOME/destination/src
+go get -insecure .
 cd $GOBIN
 mv src goexec
 ```
 ### S2I - Step 5
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/run
+```shell
+[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/run
+
+[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/run
 ```
 And ensure the file matches the following
-```bash
-#!/bin/bash –e
-exec $GOBIN/goexec $ARG
+```shell
+#!/bin/bash -e
+exec $GOBIN/goexec $ARGS
 ```
 ### S2I - Step 6
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/save-artifacts
+```shell
+[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/save-artifacts
+
+[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/save-artifacts
 ```
 And ensure the file matches the following
-```bash
+```shell
 #!/bin/bash –e
 
 cd $GOPATH
 tar cf - pkg bin src
 ```
 ### S2I - Step 7
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ vi .s2i/bin/usage
+```shell
+[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/usage
+
+[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/usage
 ```
 ### S2I - Step 8
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ docker build –t golang-s2i .
+```shell
+[vagrant@rhel-cdk ~]$ cd ~/golang-s2i/
 
-# s2i build <source location> <builder image> [<tag>] [flags]
-
-[ec2-user@ip-10-0-0-XX golang-s2i]$ s2i build https://github.com/rhtps/gochat.git golang-s2i gochat
+[vagrant@rhel-cdk golang-s2i]$ docker build -t golang-s2i .
 ```
 ### S2I - Step 9
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ docker run -e "ARGS=-host=0.0.0.0:8080 -callBackHost=student01.s2i.rhtps.io:8080 -templatePath=/opt/go/src/github.com/rhtps/gochat/templates -avatarPath=/opt/go/src/github.com/rhtps/gochat/avatars" -p 8080:8080 -d --name chat gochat
+```shell
+# s2i build <source location> <builder image> [<tag>] [flags]
+
+[vagrant@rhel-cdk golang-s2i]$ s2i build https://github.com/rhtps/gochat.git golang-s2i gochat
+```
+### S2I - Step 10
+```shell
+[vagrant@rhel-cdk golang-s2i]$ docker run -e "ARGS=-callBackHost=http://10.1.2.2:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
 ```
 When you are done
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ docker stop chat
+```shell
+[vagrant@rhel-cdk golang-s2i]$ docker stop chat
 
-[ec2-user@ip-10-0-0-XX golang-s2i]$ docker rm chat
+[vagrant@rhel-cdk golang-s2i]$ docker rm chat
 ```
 ---
 ## Preparing for OpenShift
