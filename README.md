@@ -37,7 +37,6 @@ This document contains the code/configuration snippets corresponding to the work
 	- [Route](#route)
 	- [Parameters](#parameters)
 	- [Final](#final)
-	- [](#)
 
 <!-- /TOC -->
 ## Pre Docker
@@ -209,7 +208,7 @@ EXPOSE 8080
 ```
 And ensure the file matches the following
 ```shell
-#!/bin/bash -e #
+#!/bin/bash
 # S2I assemble script for the 'golang-s2i' image.
 cd $HOME/destination/src
 go get -insecure .
@@ -224,7 +223,7 @@ mv src goexec
 ```
 And ensure the file matches the following
 ```shell
-#!/bin/bash -e
+#!/bin/bash
 exec $GOBIN/goexec $ARGS
 ```
 ### S2I - Step 6
@@ -235,7 +234,7 @@ exec $GOBIN/goexec $ARGS
 ```
 And ensure the file matches the following
 ```shell
-#!/bin/bash –e
+#!/bin/bash
 
 cd $GOPATH
 tar cf - pkg bin src
@@ -485,5 +484,3 @@ Application arguments (APP_ARGS)
 ```bash
 -host=0.0.0.0:8080 -callBackHost=student01.s2i.rhtps.io:8080 -templatePath=/opt/go/src/github.com/rhtps/gochat/templates -avatarPath=/opt/go/src/github.com/rhtps/gochat/avatars
 ```
-
-###
