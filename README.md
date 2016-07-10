@@ -472,17 +472,13 @@ parameters:
 ### Final
 Let's create the template
 ```shell
-[vagrant@rhel-cdk golang-s2i]$ cd ~
+[vagrant@rhel-cdk golang-s2i]$ cd openshift
 
-[vagrant@rhel-cdk ~]$ git clone https://github.com/rhtps/s2i-workshop.git
+[vagrant@rhel-cdk openshift]$ oc login -u openshift-dev
 
-[vagrant@rhel-cdk ~]$ cd s2i-workshop
+[vagrant@rhel-cdk openshift]$ oc new-project gochat
 
-[vagrant@rhel-cdk s2i-workshop]$ oc login -u openshift-dev
-
-[vagrant@rhel-cdk s2i-workshop]$ oc new-project gochat
-
-[vagrant@rhel-cdk s2i-workshop]$ oc create -f golang.yaml
+[vagrant@rhel-cdk openshift]$ oc create -f golang.yaml
 ```
 Application arguments (APP_ARGS)
 ```shell
