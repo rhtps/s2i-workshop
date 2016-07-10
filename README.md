@@ -470,17 +470,21 @@ parameters:
   name: APP_ARGS
 ```
 ### Final
+Let's create the template
+```shell
+[vagrant@rhel-cdk golang-s2i]$ cd ~
 
-Log in to OpenShift from the command line
-```bash
-[ec2-user@ip-10-0-0-XX golang-s2i]$ oc login https://master.ose31.ravello.kenscloud.io:8443
+[vagrant@rhel-cdk ~]$ git clone https://github.com/rhtps/s2i-workshop.git
 
-[ec2-user@ip-10-0-0-XX golang-s2i]$ oc new-project golang
+[vagrant@rhel-cdk ~]$ cd s2i-workshop
 
-[ec2-user@ip-10-0-0-XX golang-s2i]$ oc create -f golang.yaml
+[vagrant@rhel-cdk s2i-workshop]$ oc login -u openshift-dev
 
+[vagrant@rhel-cdk s2i-workshop]$ oc new-project gochat
+
+[vagrant@rhel-cdk s2i-workshop]$ oc create -f golang.yaml
 ```
 Application arguments (APP_ARGS)
-```bash
--host=0.0.0.0:8080 -callBackHost=student01.s2i.rhtps.io:8080 -templatePath=/opt/go/src/github.com/rhtps/gochat/templates -avatarPath=/opt/go/src/github.com/rhtps/gochat/avatars
+```shell
+-host=0.0.0.0:8080 -callBackHost=10.1.2.2:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars
 ```
