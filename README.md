@@ -5,7 +5,7 @@ This document contains the code/configuration snippets corresponding to the work
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Pre Docker](#pre-docker)
+- [Pre Docker](##pre-docker)
 	- [Pre Docker - Step 1](#pre-docker-step-1)
 	- [Pre Docker - Step 2](#pre-docker-step-2)
 	- [Pre Docker - Step 3](#pre-docker-step-3)
@@ -94,7 +94,7 @@ Sun Jul 10 07:21:24 EDT 2016
 ```
 ### Pre Docker - Step 6
 ```shell
-[vagrant@rhel-cdk ~]$ gochat -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
+[vagrant@rhel-cdk ~]$ gochat -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=avatars/ -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
 ```
 ## Option 1 - Dockerfile
 The following steps are performed in your Vagrant CDK VM.
