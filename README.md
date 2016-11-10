@@ -40,7 +40,7 @@ This document contains the code/configuration snippets corresponding to the work
 <!-- /TOC -->
 ## Pre Docker
 ### Pre Docker - Step 1
-#Set the environment variables
+Set the environment variables
 ```shell
 [student@localhost ~]$ cd ~
 
