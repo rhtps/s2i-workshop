@@ -5,11 +5,10 @@ This document contains the code/configuration snippets corresponding to the work
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Pre Docker](##pre-docker)
+- [Pre Docker](#pre-docker)
 	- [Pre Docker - Step 1](#pre-docker-step-1)
 	- [Pre Docker - Step 2](#pre-docker-step-2)
 	- [Pre Docker - Step 3](#pre-docker-step-3)
-	- [Pre Docker - Step 4](#pre-docker-step-4)
 	- [Pre Docker - Step 5](#pre-docker-step-5)
 	- [Pre Docker - Step 6](#pre-docker-step-6)
 - [Option 1 - Dockerfile](#option-1-dockerfile)
@@ -41,109 +40,95 @@ This document contains the code/configuration snippets corresponding to the work
 <!-- /TOC -->
 ## Pre Docker
 ### Pre Docker - Step 1
-```shell
-#Power up your Vagrant VM and SSH to it
-$ vagrant up
-
-$ vagrant ssh
-
 #Set the environment variables
-[vagrant@rhel-cdk ~]$ cat <<EOF >> ~/.bashrc
+```shell
+[student@localhost ~]$ cd ~
+
+[student@localhost ~]$ cat <<EOF >> ~/.bashrc
 export GOROOT=$HOME/go
 export GOPATH=$HOME/work
 export GOBIN=$HOME/work/bin
 export PATH=$PATH:$HOME/work/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/:$HOME/go/bin:$HOME/work/bin:$HOME/bzr-2.7.0
 EOF
 
-[vagrant@rhel-cdk ~]$ source ~/.bashrc
+[student@localhost ~]$ source ~/.bashrc
 ```
 ### Pre Docker - Step 2
 ```shell
 # Obtain golang tooling
-[vagrant@rhel-cdk ~]$ curl -k -o go1.6.2.linux-amd64.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
+[student@localhost ~]$ curl -k -o go1.6.2.linux-amd64.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
 
-[vagrant@rhel-cdk ~]$ tar -xvf go1.6.2.linux-amd64.tar.gz
+[student@localhost ~]$ tar -xvf go1.6.2.linux-amd64.tar.gz
 ```
 ### Pre Docker - Step 3
 ```shell
 # Obtain Canonical Bazaar
-[vagrant@rhel-cdk ~]$ curl -k -L -o bzr.tar.gz https://launchpad.net/bzr/2.7/2.7.0/+download/bzr-2.7.0.tar.gz
+[student@localhost ~]$ curl -k -L -o bzr.tar.gz https://launchpad.net/bzr/2.7/2.7.0/+download/bzr-2.7.0.tar.gz
 
-[vagrant@rhel-cdk ~]$ tar -xvf bzr.tar.gz
+[student@localhost ~]$ tar -xvf bzr.tar.gz
 
-```
-### Pre Docker - Step 4
-```shell
-#Adjust date and time
-[vagrant@rhel-cdk ~]$ date
-Sun Jul 10 07:21:24 EDT 2016
-
-#If this isn't right, we need to correct it
-[vagrant@rhel-cdk ~]$ sudo timedatectl 2016-07-10
-
-[vagrant@rhel-cdk ~]$ sudo timedatectl 07:22:30
 ```
 ### Pre Docker - Step 5
 ```shell
 #Download and build the gochat application
-[vagrant@rhel-cdk ~]$ cd ~
+[student@localhost ~]$ cd ~
 
-[vagrant@rhel-cdk ~]$ go get -insecure github.com/rhtps/gochat
+[student@localhost ~]$ go get -insecure github.com/rhtps/gochat
 
-[vagrant@rhel-cdk ~]$ go install github.com/rhtps/gochat
+[student@localhost ~]$ go install github.com/rhtps/gochat
 ```
 ### Pre Docker - Step 6
 ```shell
-[vagrant@rhel-cdk ~]$ gochat -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=avatars/ -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
+[student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
 ```
 ## Option 1 - Dockerfile
 The following steps are performed in your Vagrant CDK VM.
 ### Dockerfile - Step 1
 ```shell
-[vagrant@rhel-cdk ~]$ cd ~
+[student@localhost ~]$ cd ~
 
-[vagrant@rhel-cdk ~]$ git clone https://github.com/rhtps/gochat-docker.git
+[student@localhost ~]$ git clone https://github.com/rhtps/gochat-docker.git
 
-[vagrant@rhel-cdk ~]$ less gochat-docker/Dockerfile
+[student@localhost ~]$ less gochat-docker/Dockerfile
 ```
 ### Dockerfile - Step 2
 ```shell
 # Build the image
-[vagrant@rhel-cdk ~]$ cd ~/gochat-docker
+[student@localhost ~]$ cd ~/gochat-docker
 
-[vagrant@rhel-cdk gochat-docker]$ docker build -t gochat-docker .
+[student@localhost gochat-docker]$ sudo docker build -t gochat-docker .
 ```
 ### Dockerfile - Step 3
 ```shell
 # Start the gochat container
-[vagrant@rhel-cdk ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
+[student@localhost ~]$ sudo docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://0.0.0.0:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
 ```
 ### Dockerfile - Step 4
 ```shell
-[vagrant@rhel-cdk ~]$ docker stop gochat
+[student@localhost ~]$ sudo docker stop gochat
 
-[vagrant@rhel-cdk ~]$ docker rm gochat
+[student@localhost ~]$ sudo docker rm gochat
 ```
 ---
 ## Option 2 - Source-to-Image (S2I)
 The following steps are performed in your Vagrant CDK VM.
 ### S2I - Step 1
 ```shell
-[vagrant@rhel-cdk ~]$ go get github.com/openshift/source-to-image
+[student@localhost ~]$ go get github.com/openshift/source-to-image
 
-[vagrant@rhel-cdk ~]$ cd $GOPATH/src/github.com/openshift/source-to-image
+[student@localhost ~]$ cd $GOPATH/src/github.com/openshift/source-to-image
 
-[vagrant@rhel-cdk source-to-image]$ export PATH=$PATH:$GOPATH/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/
+[student@localhost source-to-image]$ export PATH=$PATH:$GOPATH/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/
 
-[vagrant@rhel-cdk source-to-image]$ hack/build-go.sh
+[student@localhost source-to-image]$ hack/build-go.sh
 ```
 ### S2I - Step 2
 ```shell
-[vagrant@rhel-cdk ~]$ cd ~
+[student@localhost ~]$ cd ~
 
-[vagrant@rhel-cdk ~]$ s2i create golang-s2i golang-s2i
+[student@localhost ~]$ s2i create golang-s2i golang-s2i
 
-[vagrant@rhel-cdk golang-s2i]$ tree -a golang-s2i
+[student@localhost golang-s2i]$ tree -a golang-s2i
 .
 ├── Dockerfile
 ├── Makefile
@@ -159,9 +144,9 @@ The following steps are performed in your Vagrant CDK VM.
 ```
 ### S2I - Step 3
 ```shell
-[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/Dockerfile
+[student@localhost ~]$ cat /dev/null > ~/golang-s2i/Dockerfile
 
-[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/Dockerfile
+[student@localhost ~]$ vi ~/golang-s2i/Dockerfile
 ```
 And then paste the following Content
 ```docker
@@ -202,9 +187,9 @@ EXPOSE 8080
 ```
 ### S2I - Step 4
 ```shell
-[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/assemble
+[student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/assemble
 
-[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/assemble
+[student@localhost ~]$ vi ~/golang-s2i/.s2i/bin/assemble
 ```
 And ensure the file matches the following
 ```shell
@@ -217,9 +202,9 @@ mv src goexec
 ```
 ### S2I - Step 5
 ```shell
-[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/run
+[student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/run
 
-[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/run
+[student@localhost ~]$ vi ~/golang-s2i/.s2i/bin/run
 ```
 And ensure the file matches the following
 ```shell
@@ -228,9 +213,9 @@ exec $GOBIN/goexec $ARGS
 ```
 ### S2I - Step 6
 ```shell
-[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/save-artifacts
+[student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/save-artifacts
 
-[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/save-artifacts
+[student@localhost ~]$ vi ~/golang-s2i/.s2i/bin/save-artifacts
 ```
 And ensure the file matches the following
 ```shell
@@ -241,31 +226,31 @@ tar cf - pkg bin src
 ```
 ### S2I - Step 7
 ```shell
-[vagrant@rhel-cdk ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/usage
+[student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/usage
 
-[vagrant@rhel-cdk ~]$ vi ~/golang-s2i/.s2i/bin/usage
+[student@localhost ~]$ vi ~/golang-s2i/.s2i/bin/usage
 ```
 ### S2I - Step 8
 ```shell
-[vagrant@rhel-cdk ~]$ cd ~/golang-s2i/
+[student@localhost ~]$ cd ~/golang-s2i/
 
-[vagrant@rhel-cdk golang-s2i]$ docker build -t golang-s2i .
+[student@localhost golang-s2i]$ docker build -t golang-s2i .
 ```
 ### S2I - Step 9
 ```shell
 # s2i build <source location> <builder image> [<tag>] [flags]
 
-[vagrant@rhel-cdk golang-s2i]$ s2i build https://github.com/rhtps/gochat.git golang-s2i gochat
+[student@localhost golang-s2i]$ s2i build https://github.com/rhtps/gochat.git golang-s2i gochat
 ```
 ### S2I - Step 10
 ```shell
-[vagrant@rhel-cdk golang-s2i]$ docker run -e "ARGS=-callBackHost=http://10.1.2.2:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
+[vagrant@rhel-cdk golang-s2i]$ docker run -e "ARGS=-callBackHost=http://localhost:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
 ```
 When you are done
 ```shell
-[vagrant@rhel-cdk golang-s2i]$ docker stop chat
+[student@localhost golang-s2i]$ docker stop chat
 
-[vagrant@rhel-cdk golang-s2i]$ docker rm chat
+[student@localhost golang-s2i]$ docker rm chat
 ```
 ---
 ## Preparing for OpenShift
