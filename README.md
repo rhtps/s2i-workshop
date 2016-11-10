@@ -82,7 +82,6 @@ EOF
 [student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
 ```
 ## Option 1 - Dockerfile
-The following steps are performed in your Vagrant CDK VM.
 ### Dockerfile - Step 1
 ```shell
 [student@localhost ~]$ cd ~
@@ -96,22 +95,23 @@ The following steps are performed in your Vagrant CDK VM.
 # Build the image
 [student@localhost ~]$ cd ~/gochat-docker
 
-[student@localhost gochat-docker]$ sudo docker build -t gochat-docker .
+[student@localhost gochat-docker]$ docker build -t gochat-docker .
 ```
 ### Dockerfile - Step 3
 ```shell
 # Start the gochat container
-[student@localhost ~]$ sudo docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://0.0.0.0:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
+[student@localhost ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://0.0.0.0:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
+
+[student@localhost ~]$ docker ps
 ```
 ### Dockerfile - Step 4
 ```shell
-[student@localhost ~]$ sudo docker stop gochat
+[student@localhost ~]$ docker stop gochat
 
 [student@localhost ~]$ sudo docker rm gochat
 ```
 ---
 ## Option 2 - Source-to-Image (S2I)
-The following steps are performed in your Vagrant CDK VM.
 ### S2I - Step 1
 ```shell
 [student@localhost ~]$ go get github.com/openshift/source-to-image
@@ -128,7 +128,7 @@ The following steps are performed in your Vagrant CDK VM.
 
 [student@localhost ~]$ s2i create golang-s2i golang-s2i
 
-[student@localhost golang-s2i]$ tree -a golang-s2i
+[student@localhost ~]$ tree -a golang-s2i
 .
 ├── Dockerfile
 ├── Makefile
@@ -151,7 +151,7 @@ The following steps are performed in your Vagrant CDK VM.
 And then paste the following Content
 ```docker
 # golang-s2i
-FROM rhel7
+FROM centos:7
 
 MAINTAINER Kenneth D. Evensen <kevensen@redhat.com>
 
@@ -171,7 +171,9 @@ LABEL io.k8s.description="Platform for building go based programs" \
       io.openshift.s2i.destination="/opt/app-root/destination"
 
 RUN yum clean all && \
-    yum install -y --disablerepo='*' --enablerepo='rhel-7-server-rpms' --enablerepo='rhel-7-server-optional-rpms' tar git-bzr && yum clean all && rm -rf /var/cache/yum/*
+    yum install -y tar git-bzr && \
+		yum clean all && \
+		rm -rf /var/cache/yum/*
 
 COPY ./.s2i/bin/ /usr/local/s2i
 RUN useradd -u 1001 -r -g 0 -d ${HOME} -s /sbin/nologin -c "Default Application User" default && \
@@ -244,7 +246,9 @@ tar cf - pkg bin src
 ```
 ### S2I - Step 10
 ```shell
-[vagrant@rhel-cdk golang-s2i]$ docker run -e "ARGS=-callBackHost=http://localhost:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
+[student@localhost golang-s2i]$ docker run -e "ARGS=-callBackHost=http://localhost:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
+
+[student@localhost golang-s2i]$ docker ps
 ```
 When you are done
 ```shell
