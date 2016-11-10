@@ -272,11 +272,10 @@ metadata:
   creationTimestamp: null
   name: golang
 objects:
-  ...
 ```
 ### ImageStreams
+Under **objects:**
 ```yaml
-objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
@@ -291,9 +290,8 @@ objects:
     name: ${APPLICATION_NAME}
 ```
 ### BuildConfiguration
+Under **objects:** below the **ImageStreams** from the previous step.
 ```yaml
-objects:
-…
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -350,6 +348,7 @@ objects:
       type: GitHub
 ```
 ### DeploymentConfiguration
+Under **objects:** below the **BuildConfigs** from the previous step.
 ```yaml
 - apiVersion: v1
   kind: DeploymentConfig
@@ -389,6 +388,7 @@ objects:
     - type: ConfigChange
 ```
 ### Services
+Under **objects:** below the **DeploymentConfigs** from the previous step.
 ```yaml
 - apiVersion: v1
   kind: Service
@@ -405,6 +405,7 @@ objects:
       name: ${APPLICATION_NAME}
 ```
 ### Route
+Under **objects:** below the **Services** from the previous step.
 ```yaml
 - apiVersion: v1
   id: ${APPLICATION_NAME}
@@ -421,6 +422,7 @@ objects:
       name: ${APPLICATION_NAME}
 ```
 ### Parameters
+Under **objects:** below the **Route** from the previous step.
 ```yaml
 parameters:
 - description: The URL of the repository with your Golang S2I builder Dockerfile
