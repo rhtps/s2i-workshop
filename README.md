@@ -445,7 +445,7 @@ Tag and push the builder image to integrated container registry.  We created thi
 ### Automation - Step 5
 Now we are going to deploy our application.
 
-Application Source URL: *https://github.com/rhtps/gochat*
+Application Source URL: **https://github.com/rhtps/gochat**
 
 Application Source Branch: (blank)
 
@@ -453,7 +453,7 @@ Application Source Directory: (blank)
 
 Application GitHub Web Hook Secret: (generated if empty)
 
-Application Name: *gochat*
+Application Name: **gochat**
 
 Application Domain: (blank)
 
