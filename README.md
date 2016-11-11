@@ -27,14 +27,15 @@ This document contains the code/configuration snippets corresponding to the work
 	- [S2I - Step 8](#s2i-step-8)
 	- [S2I - Step 9](#s2i-step-9)
 	- [S2I - Step 10](#s2i-step-10)
-- [Preparing for OpenShift](#preparing-for-openshift)
-	- [Template](#template)
-	- [ImageStreams](#imagestreams)
-	- [BuildConfiguration](#buildconfiguration)
-	- [DeploymentConfiguration](#deploymentconfiguration)
-	- [Services](#services)
-	- [Route](#route)
-	- [Parameters](#parameters)
+- [Automation in OpenShift](#automation-in-openshift)
+	- [Automation - Step 1](#automation-step-1)
+	- [Automation - Step 2 -Template](#automation-step-2-template)
+	- [Automation - Step 3 -ImageStreams](#automation-step-3-imagestreams)
+	- [Automation - Step 4 - BuildConfiguration](#automation-step-4-buildconfiguration)
+	- [Automation - Step 5 - DeploymentConfiguration](#automation-step-5-deploymentconfiguration)
+	- [Automation - Step 6 - Services](#automation-step-6-services)
+	- [Automation - Step 7 - Route](#automation-step-7-route)
+	- [Automation - Step 8 - Parameters](#automation-step-8-parameters)
 	- [Final](#final)
 
 <!-- /TOC -->
@@ -257,8 +258,18 @@ When you are done
 [student@localhost golang-s2i]$ docker rm chat
 ```
 ---
-## Preparing for OpenShift
-### Template
+## Automation in OpenShift
+### Automation - Step 1
+```shell
+[student@localhost ~]$ cd ~
+
+[student@localhost ~]$ mkdir ~/openshift
+
+[student@localhost ~]$ cd ~/openshift
+
+[student@localhost ~]$ vi golang.yaml
+```
+### Automation - Step 2 -Template
 ```yaml
 apiVersion: v1
 kind: Template
@@ -272,51 +283,12 @@ metadata:
   creationTimestamp: null
   name: golang
 objects:
-```
-### ImageStreams
-Under **objects:**
-```yaml
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    annotations:
-      description: Keeps track of changes in the application image
-    name: golang-builder
 - apiVersion: v1
   kind: ImageStream
   metadata:
     annotations:
       description: Keeps track of changes in the application image
     name: ${APPLICATION_NAME}
-```
-### BuildConfiguration
-Under **objects:** below the **ImageStreams** from the previous step.
-```yaml
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    annotations:
-      description: Defines how to build the application
-    name: golang-builder
-  spec:
-    output:
-      to:
-        kind: ImageStreamTag
-        name: golang-builder:latest
-    source:
-      contextDir: ${BUILDER_CONTEXT_DIR}
-      git:
-        ref: ${BUILDER_SOURCE_REPOSITORY_REF}
-        uri: ${BUILDER_SOURCE_REPOSITORY_URL}
-      type: Git
-    strategy:
-      dockerStrategy:
-      type: Docker
-    triggers:
-    - type: ConfigChange
-    - github:
-        secret: ${BUILDER_GITHUB_WEBHOOK_SECRET}
-      type: GitHub
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -338,7 +310,7 @@ Under **objects:** below the **ImageStreams** from the previous step.
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: golang-builder:latest
+          name: golang-s2i:latest
       type: Source
     triggers:
     - type: ImageChange
@@ -346,10 +318,6 @@ Under **objects:** below the **ImageStreams** from the previous step.
     - github:
         secret: ${APP_GITHUB_WEBHOOK_SECRET}
       type: GitHub
-```
-### DeploymentConfiguration
-Under **objects:** below the **BuildConfigs** from the previous step.
-```yaml
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -386,10 +354,6 @@ Under **objects:** below the **BuildConfigs** from the previous step.
           name: ${APPLICATION_NAME}:latest
       type: ImageChange
     - type: ConfigChange
-```
-### Services
-Under **objects:** below the **DeploymentConfigs** from the previous step.
-```yaml
 - apiVersion: v1
   kind: Service
   metadata:
@@ -403,10 +367,6 @@ Under **objects:** below the **DeploymentConfigs** from the previous step.
       targetPort: 8080
     selector:
       name: ${APPLICATION_NAME}
-```
-### Route
-Under **objects:** below the **Services** from the previous step.
-```yaml
 - apiVersion: v1
   id: ${APPLICATION_NAME}
   kind: Route
@@ -420,24 +380,7 @@ Under **objects:** below the **Services** from the previous step.
     host: ${APPLICATION_DOMAIN}
     to:
       name: ${APPLICATION_NAME}
-```
-### Parameters
-Under **objects:** below the **Route** from the previous step.
-```yaml
 parameters:
-- description: The URL of the repository with your Golang S2I builder Dockerfile
-  name: BUILDER_SOURCE_REPOSITORY_URL
-  value: https://github.com/rhtps/golang-s2i.git
-- description: Set this to a branch name, tag or other ref of your repository if you
-    are not using the default branch
-  name: BUILDER_SOURCE_REPOSITORY_REF
-- description: Set this to the relative path to your project if it is not in the root
-    of your repository
-  name: BUILDER_CONTEXT_DIR
-- description: A secret string used to configure the GitHub webhook for the builder repo
-  from: '[a-zA-Z0-9]{40}'
-  generate: expression
-  name: BUILDER_GITHUB_WEBHOOK_SECRET
 - description: The URL of the repository with your Golang application code
   name: APP_SOURCE_REPOSITORY_URL
 - description: Set this to a branch name, tag or other ref of your repository if you
@@ -463,9 +406,13 @@ parameters:
 ### Final
 Let's create the template
 ```shell
-[vagrant@rhel-cdk golang-s2i]$ cd openshift
+[student@localhost openshift]$ pushd ~/cdk/components/rhel/rhel-ose/
 
-[vagrant@rhel-cdk openshift]$ oc login -u openshift-dev
+[student@localhost rhel-ose]$ vagrant up
+
+[student@localhost rhel-ose]$ oc login -u openshift-dev https://10.1.2.2:8443
+
+[student@localhost rhel-ose]$ popd
 
 [vagrant@rhel-cdk openshift]$ oc new-project gochat
 
@@ -473,5 +420,5 @@ Let's create the template
 ```
 Application arguments (APP_ARGS)
 ```shell
--host=0.0.0.0:8080 -callBackHost=10.1.2.2:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars
+-host=0.0.0.0:8080 -callBackHost=http://http://golang-app-gochat.rhel-cdk.10.1.2.2.xip.io -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd
 ```
