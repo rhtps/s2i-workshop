@@ -30,15 +30,16 @@ This document contains the code/configuration snippets corresponding to the work
 	- [S2I - Step 10](#s2i-step-10)
 - [Automation in OpenShift](#automation-in-openshift)
 	- [Automation - Step 1](#automation-step-1)
-	- [Automation - Step 2 - Template](#automation-step-2-template)
+	- [Automation - Step 2](#automation-step-2)
 	- [Automation - Step 3](#automation-step-3)
 	- [Automation - Step 4](#automation-step-4)
 	- [Automation - Step 5](#automation-step-5)
 
 <!-- /TOC -->
+<a name="pre-docker"></a>
 ## Pre Docker
-### Pre Docker - Step 1
 <a name="pre-docker-step-1"></a>
+### Pre Docker - Step 1
 Set the environment variables
 ```shell
 [student@localhost ~]$ cd ~
@@ -52,16 +53,16 @@ EOF
 
 [student@localhost ~]$ source ~/.bashrc
 ```
-### Pre Docker - Step 2
 <a name="pre-docker-step-2"></a>
+### Pre Docker - Step 2
 ```shell
 # Obtain golang tooling
 [student@localhost ~]$ curl -k -o go1.6.2.linux-amd64.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
 
 [student@localhost ~]$ tar -xvf go1.6.2.linux-amd64.tar.gz
 ```
-### Pre Docker - Step 3
 <a name="pre-docker-step-3"></a>
+### Pre Docker - Step 3
 ```shell
 # Obtain Canonical Bazaar
 [student@localhost ~]$ curl -k -L -o bzr.tar.gz https://launchpad.net/bzr/2.7/2.7.0/+download/bzr-2.7.0.tar.gz
@@ -69,8 +70,8 @@ EOF
 [student@localhost ~]$ tar -xvf bzr.tar.gz
 
 ```
-### Pre Docker - Step 4
 <a name="pre-docker-step-4"></a>
+### Pre Docker - Step 4
 ```shell
 #Download and build the gochat application
 [student@localhost ~]$ cd ~
@@ -79,12 +80,14 @@ EOF
 
 [student@localhost ~]$ go install github.com/rhtps/gochat
 ```
-### Pre Docker - Step 5
 <a name="pre-docker-step-5"></a>
+### Pre Docker - Step 5
 ```shell
 [student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
 ```
+<a name="option-1-dockerfile"></a>
 ## Option 1 - Dockerfile
+<a name="dockerfile-step-1"></a>
 ### Dockerfile - Step 1
 Start the CDK and instal CLI tools.
 ```shell
@@ -99,7 +102,7 @@ Start the CDK and instal CLI tools.
 
 [student@localhost rhel-ose]$ eval "$(VAGRANT_NO_COLOR=1 vagrant service-manager install-cli openshift | tr -d '\r')"
 ```
-
+<a name="dockerfile-step-2"></a>
 ### Dockerfile - Step 2
 ```shell
 [student@localhost ~]$ cd ~
@@ -108,6 +111,7 @@ Start the CDK and instal CLI tools.
 
 [student@localhost ~]$ less gochat-docker/Dockerfile
 ```
+<a name="dockerfile-step-3"></a>
 ### Dockerfile - Step 3
 ```shell
 # Build the image
@@ -115,6 +119,7 @@ Start the CDK and instal CLI tools.
 
 [student@localhost gochat-docker]$ docker build -t gochat-docker .
 ```
+<a name="dockerfile-step-4"></a>
 ### Dockerfile - Step 4
 ```shell
 # Start the gochat container
@@ -122,6 +127,7 @@ Start the CDK and instal CLI tools.
 
 [student@localhost ~]$ docker ps
 ```
+<a name="dockerfile-step-5"></a>
 ### Dockerfile - Step 5
 ```shell
 [student@localhost ~]$ docker stop gochat
@@ -129,7 +135,9 @@ Start the CDK and instal CLI tools.
 [student@localhost ~]$ sudo docker rm gochat
 ```
 ---
+<a name="option-2-source-to-image-s2i"></a>
 ## Option 2 - Source-to-Image (S2I)
+<a name="s2i-step-1"></a>
 ### S2I - Step 1
 ```shell
 [student@localhost ~]$ go get github.com/openshift/source-to-image
@@ -140,6 +148,7 @@ Start the CDK and instal CLI tools.
 
 [student@localhost source-to-image]$ hack/build-go.sh
 ```
+<a name="s2i-step-2"></a>
 ### S2I - Step 2
 ```shell
 [student@localhost ~]$ cd ~
@@ -160,6 +169,7 @@ Start the CDK and instal CLI tools.
     ├── run
     └── test-app
 ```
+<a name="s2i-step-3"></a>
 ### S2I - Step 3
 ```shell
 [student@localhost ~]$ cat /dev/null > ~/golang-s2i/Dockerfile
@@ -205,6 +215,7 @@ WORKDIR ${HOME}
 USER 1001
 EXPOSE 8080
 ```
+<a name="s2i-step-4"></a>
 ### S2I - Step 4
 ```shell
 [student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/assemble
@@ -220,6 +231,7 @@ go get -insecure .
 cd $GOBIN
 mv src goexec
 ```
+<a name="s2i-step-5"></a>
 ### S2I - Step 5
 ```shell
 [student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/run
@@ -231,6 +243,7 @@ And ensure the file matches the following
 #!/bin/bash
 exec $GOBIN/goexec $ARGS
 ```
+<a name="s2i-step-6"></a>
 ### S2I - Step 6
 ```shell
 [student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/save-artifacts
@@ -244,24 +257,28 @@ And ensure the file matches the following
 cd $GOPATH
 tar cf - pkg bin src
 ```
+<a name="s2i-step-7"></a>
 ### S2I - Step 7
 ```shell
 [student@localhost ~]$ cat /dev/null > ~/golang-s2i/.s2i/bin/usage
 
 [student@localhost ~]$ vi ~/golang-s2i/.s2i/bin/usage
 ```
+<a name="s2i-step-8"></a>
 ### S2I - Step 8
 ```shell
 [student@localhost ~]$ cd ~/golang-s2i/
 
 [student@localhost golang-s2i]$ docker build -t golang-s2i .
 ```
+<a name="s2i-step-9"></a>
 ### S2I - Step 9
 ```shell
 # s2i build <source location> <builder image> [<tag>] [flags]
 
 [student@localhost golang-s2i]$ s2i build https://github.com/rhtps/gochat.git golang-s2i gochat
 ```
+<a name="s2i-step-10"></a>
 ### S2I - Step 10
 ```shell
 [student@localhost golang-s2i]$ docker run -e "ARGS=-callBackHost=http://localhost:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
@@ -275,7 +292,9 @@ When you are done
 [student@localhost golang-s2i]$ docker rm chat
 ```
 ---
+<a name="automation-in-openshift"></a>
 ## Automation in OpenShift
+<a name="automation-step-1"></a>
 ### Automation - Step 1
 ```shell
 [student@localhost ~]$ cd ~
@@ -286,7 +305,9 @@ When you are done
 
 [student@localhost ~]$ vi golang.yaml
 ```
-### Automation - Step 2 - Template
+<a name="automation-step-2"></a>
+### Automation - Step 2
+Add the following to the template.
 ```yaml
 apiVersion: v1
 kind: Template
@@ -427,6 +448,7 @@ parameters:
   name: APP_ARGS
   displayName: Application Command Line Arguments
 ```
+<a name="automation-step-3"></a>
 ### Automation - Step 3
 Login to the integrated container registry
 ```shell
@@ -437,7 +459,7 @@ Login to the integrated container registry
 
 [student@localhost ~]$ docker login -u openshift-dev -p (the token value) -e openshift-dev@local.host 172.30.124.37:5000
 ```
-
+<a name="automation-step-4"></a>
 ### Automation - Step 4
 Tag and push the builder image to integrated container registry.  We created this builder image in an earlier step.  Now we need to make it available to OCP.
 
@@ -445,8 +467,8 @@ Tag and push the builder image to integrated container registry.  We created thi
 [student@localhost ~]$ docker tag golang-s2i 172.30.124.37:5000/gochat/golang-s2i
 
 [student@localhost ~]$ docker push 172.30.124.37:5000/gochat/golang-s2i
-
 ```
+<a name="automation-step-5"></a>
 ### Automation - Step 5
 Now we are going to deploy our application.
 
