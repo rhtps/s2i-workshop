@@ -454,6 +454,16 @@ parameters:
 ```
 <a name="automation-step-3"></a>
 ### Automation - Step 3
+Create the project and the template.
+```shell
+[student@localhost ~]$ oc login -u openshift-dev 10.1.2.2:8443
+
+[student@localhost ~]$ oc new-project gochat
+
+[student@localhost ~]$ oc create -f golang.yaml
+```
+<a name="automation-step-4"></a>
+### Automation - Step 4
 Login to the integrated container registry
 ```shell
 [student@localhost ~]$ oc login -u openshift-dev 10.1.2.2:8443
@@ -463,8 +473,8 @@ Login to the integrated container registry
 
 [student@localhost ~]$ docker login -u openshift-dev -p (the token value) -e openshift-dev@local.host 172.30.124.37:5000
 ```
-<a name="automation-step-4"></a>
-### Automation - Step 4
+<a name="automation-step-5"></a>
+### Automation - Step 5
 Tag and push the builder image to integrated container registry.  We created this builder image in an earlier step.  Now we need to make it available to OCP.
 
 ```shell
@@ -472,8 +482,8 @@ Tag and push the builder image to integrated container registry.  We created thi
 
 [student@localhost ~]$ docker push 172.30.124.37:5000/gochat/golang-s2i
 ```
-<a name="automation-step-5"></a>
-### Automation - Step 5
+<a name="automation-step-6"></a>
+### Automation - Step 6
 Now we are going to deploy our application.
 
 Application Source URL: **https://github.com/rhtps/gochat**
