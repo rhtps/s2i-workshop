@@ -134,7 +134,7 @@ Start the CDK and instal CLI tools.
 ```shell
 [student@localhost ~]$ docker stop gochat
 
-[student@localhost ~]$ sudo docker rm gochat
+[student@localhost ~]$ docker rm gochat
 ```
 ---
 <a name="option-2-source-to-image-s2i"></a>
@@ -142,6 +142,8 @@ Start the CDK and instal CLI tools.
 <a name="s2i-step-1"></a>
 ### S2I - Step 1
 ```shell
+[student@localhost ~]$ cd ~
+
 [student@localhost ~]$ go get github.com/openshift/source-to-image
 
 [student@localhost ~]$ cd $GOPATH/src/github.com/openshift/source-to-image
@@ -283,7 +285,7 @@ tar cf - pkg bin src
 <a name="s2i-step-10"></a>
 ### S2I - Step 10
 ```shell
-[student@localhost golang-s2i]$ docker run -e "ARGS=-callBackHost=http://localhost:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
+[student@localhost golang-s2i]$ docker run -e "ARGS=-callBackHost=http://10.1.2.2:8080 -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd" -p 8080:8080 -d --name chat gochat
 
 [student@localhost golang-s2i]$ docker ps
 ```
