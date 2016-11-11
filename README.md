@@ -125,7 +125,7 @@ Start the CDK and instal CLI tools.
 ### Dockerfile - Step 4
 ```shell
 # Start the gochat container
-[student@localhost ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://0.0.0.0:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
+[student@localhost ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=10.1.2.2:8080 -callBackHost=http://10.1.2.2:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
 
 [student@localhost ~]$ docker ps
 ```
