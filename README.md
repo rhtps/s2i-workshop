@@ -461,7 +461,7 @@ Create the project and the template.
 
 [student@localhost ~]$ oc new-project gochat
 
-[student@localhost ~]$ oc create -f golang.yaml
+[student@localhost ~]$ oc create -f ~/openshift/golang.yaml
 ```
 <a name="automation-step-4"></a>
 ### Automation - Step 4
@@ -485,6 +485,8 @@ Tag and push the builder image to integrated container registry.  We created thi
 ```
 <a name="automation-step-6"></a>
 ### Automation - Step 6
+Login to https://10.1.2.2:8443
+
 Now we are going to deploy our application.
 
 Application Source URL: **https://github.com/rhtps/gochat**
