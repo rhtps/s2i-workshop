@@ -16,6 +16,7 @@ This document contains the code/configuration snippets corresponding to the work
 	- [Dockerfile - Step 2](#dockerfile-step-2)
 	- [Dockerfile - Step 3](#dockerfile-step-3)
 	- [Dockerfile - Step 4](#dockerfile-step-4)
+	- [Dockerfile - Step 5](#dockerfile-step-5)
 - [Option 2 - Source-to-Image (S2I)](#option-2-source-to-image-s2i)
 	- [S2I - Step 1](#s2i-step-1)
 	- [S2I - Step 2](#s2i-step-2)
@@ -29,14 +30,10 @@ This document contains the code/configuration snippets corresponding to the work
 	- [S2I - Step 10](#s2i-step-10)
 - [Automation in OpenShift](#automation-in-openshift)
 	- [Automation - Step 1](#automation-step-1)
-	- [Automation - Step 2 -Template](#automation-step-2-template)
-	- [Automation - Step 3 -ImageStreams](#automation-step-3-imagestreams)
-	- [Automation - Step 4 - BuildConfiguration](#automation-step-4-buildconfiguration)
-	- [Automation - Step 5 - DeploymentConfiguration](#automation-step-5-deploymentconfiguration)
-	- [Automation - Step 6 - Services](#automation-step-6-services)
-	- [Automation - Step 7 - Route](#automation-step-7-route)
-	- [Automation - Step 8 - Parameters](#automation-step-8-parameters)
-	- [Final](#final)
+	- [Automation - Step 2 - Template](#automation-step-2-template)
+	- [Automation - Step 3](#automation-step-3)
+	- [Automation - Step 4](#automation-step-4)
+	- [Automation - Step 5](#automation-step-5)
 
 <!-- /TOC -->
 ## Pre Docker
@@ -84,6 +81,21 @@ EOF
 ```
 ## Option 1 - Dockerfile
 ### Dockerfile - Step 1
+Start the CDK and instal CLI tools.
+```shell
+[student@localhost ~]$ ~/cdk/components/rhel/rhel-ose/
+
+[student@localhost rhel-ose]$ vagrant up
+
+#==> default: Registering box with vagrant-registration...
+#    default: Would you like to register the system now (default: yes)? [y|n] n
+
+[student@localhost rhel-ose]$ eval "$(VAGRANT_NO_COLOR=1 vagrant service-manager install-cli docker | tr -d '\r')"
+
+[student@localhost rhel-ose]$ eval "$(VAGRANT_NO_COLOR=1 vagrant service-manager install-cli openshift | tr -d '\r')"
+```
+
+### Dockerfile - Step 2
 ```shell
 [student@localhost ~]$ cd ~
 
@@ -91,21 +103,21 @@ EOF
 
 [student@localhost ~]$ less gochat-docker/Dockerfile
 ```
-### Dockerfile - Step 2
+### Dockerfile - Step 3
 ```shell
 # Build the image
 [student@localhost ~]$ cd ~/gochat-docker
 
 [student@localhost gochat-docker]$ docker build -t gochat-docker .
 ```
-### Dockerfile - Step 3
+### Dockerfile - Step 4
 ```shell
 # Start the gochat container
 [student@localhost ~]$ docker run -d -p 8080:8080 --name gochat gochat-docker -host=0.0.0.0:8080 -callBackHost=http://0.0.0.0:8080 -templatePath=/opt/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/gopath/src/github.com/rhtps/gochat/htpasswd
 
 [student@localhost ~]$ docker ps
 ```
-### Dockerfile - Step 4
+### Dockerfile - Step 5
 ```shell
 [student@localhost ~]$ docker stop gochat
 
@@ -269,7 +281,7 @@ When you are done
 
 [student@localhost ~]$ vi golang.yaml
 ```
-### Automation - Step 2 -Template
+### Automation - Step 2 - Template
 ```yaml
 apiVersion: v1
 kind: Template
@@ -383,42 +395,70 @@ objects:
 parameters:
 - description: The URL of the repository with your Golang application code
   name: APP_SOURCE_REPOSITORY_URL
+  displayName: Application Source URL
 - description: Set this to a branch name, tag or other ref of your repository if you
     are not using the default branch
   name: APP_SOURCE_REPOSITORY_REF
+  displayName: Application Source Branch
 - description: Set this to the relative path to your project if it is not in the root
     of your repository
   name: APP_CONTEXT_DIR
+  displayName: Application Source Directory
 - description: A secret string used to configure the GitHub webhook for the app repo
   from: '[a-zA-Z0-9]{40}'
   generate: expression
   name: APP_GITHUB_WEBHOOK_SECRET
+  displayName: Application GitHub Web Hook Secret
 - description: The name for the application.
   name: APPLICATION_NAME
   required: true
   value: golang-app
+  displayName: Application Name
 - description: 'Custom hostname for service routes.  Leave blank for default hostname,
     e.g.: <application-name>.<project>.<default-domain-suffix>'
   name: APPLICATION_DOMAIN
+  displayName: Application Domain
 - description: Command line arguments to provide to the Golang application
   name: APP_ARGS
+  displayName: Application Command Line Arguments
 ```
-### Final
-Let's create the template
+### Automation - Step 3
+Login to the integrated container registry
 ```shell
-[student@localhost openshift]$ pushd ~/cdk/components/rhel/rhel-ose/
+[student@localhost ~]$ oc login -u openshift-dev 10.1.2.2:8443
 
-[student@localhost rhel-ose]$ vagrant up
+[student@localhost ~]$ oc whoami -t
+#Copy this token!
 
-[student@localhost rhel-ose]$ oc login -u openshift-dev https://10.1.2.2:8443
-
-[student@localhost rhel-ose]$ popd
-
-[vagrant@rhel-cdk openshift]$ oc new-project gochat
-
-[vagrant@rhel-cdk openshift]$ oc create -f golang.yaml
+[student@localhost ~]$ docker login -u openshift-dev -p (the token value) -e openshift-dev@local.host 172.30.124.37:5000
 ```
-Application arguments (APP_ARGS)
+
+### Automation - Step 4
+Tag and push the builder image to integrated container registry.  We created this builder image in an earlier step.  Now we need to make it available to OCP.
+
 ```shell
--host=0.0.0.0:8080 -callBackHost=http://http://golang-app-gochat.rhel-cdk.10.1.2.2.xip.io -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd
+[student@localhost ~]$ docker tag golang-s2i 172.30.124.37:5000/gochat/golang-s2i
+
+[student@localhost ~]$ docker push 172.30.124.37:5000/gochat/golang-s2i
+
+```
+### Automation - Step 5
+Now we are going to deploy our application.
+
+Application Source URL: *https://github.com/rhtps/gochat*
+
+Application Source Branch: (blank)
+
+Application Source Directory: (blank)
+
+Application GitHub Web Hook Secret: (generated if empty)
+
+Application Name: *gochat*
+
+Application Domain: (blank)
+
+Application Command Line Arguments:
+
+```shell
+-host=0.0.0.0:8080 -callBackHost=http://golang-app-gochat.rhel-cdk.10.1.2.2.xip.io -templatePath=/opt/app-root/gopath/src/github.com/rhtps/gochat/templates -avatarPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/avatars -htpasswdPath=/opt/app-root/gopath/src/github.com/rhtps/gochat/htpasswd
 ```
