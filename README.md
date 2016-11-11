@@ -34,6 +34,7 @@ This document contains the code/configuration snippets corresponding to the work
 	- [Automation - Step 3](#automation-step-3)
 	- [Automation - Step 4](#automation-step-4)
 	- [Automation - Step 5](#automation-step-5)
+	- [Automation - Step 6](#automation-step-6)
 
 <!-- /TOC -->
 <a name="pre-docker"></a>
