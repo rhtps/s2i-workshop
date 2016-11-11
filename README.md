@@ -9,8 +9,8 @@ This document contains the code/configuration snippets corresponding to the work
 	- [Pre Docker - Step 1](#pre-docker-step-1)
 	- [Pre Docker - Step 2](#pre-docker-step-2)
 	- [Pre Docker - Step 3](#pre-docker-step-3)
+	- [Pre Docker - Step 4](#pre-docker-step-4)
 	- [Pre Docker - Step 5](#pre-docker-step-5)
-	- [Pre Docker - Step 6](#pre-docker-step-6)
 - [Option 1 - Dockerfile](#option-1-dockerfile)
 	- [Dockerfile - Step 1](#dockerfile-step-1)
 	- [Dockerfile - Step 2](#dockerfile-step-2)
@@ -38,6 +38,7 @@ This document contains the code/configuration snippets corresponding to the work
 <!-- /TOC -->
 ## Pre Docker
 ### Pre Docker - Step 1
+<a name="pre-docker-step-1"></a>
 Set the environment variables
 ```shell
 [student@localhost ~]$ cd ~
@@ -52,6 +53,7 @@ EOF
 [student@localhost ~]$ source ~/.bashrc
 ```
 ### Pre Docker - Step 2
+<a name="pre-docker-step-2"></a>
 ```shell
 # Obtain golang tooling
 [student@localhost ~]$ curl -k -o go1.6.2.linux-amd64.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
@@ -59,6 +61,7 @@ EOF
 [student@localhost ~]$ tar -xvf go1.6.2.linux-amd64.tar.gz
 ```
 ### Pre Docker - Step 3
+<a name="pre-docker-step-3"></a>
 ```shell
 # Obtain Canonical Bazaar
 [student@localhost ~]$ curl -k -L -o bzr.tar.gz https://launchpad.net/bzr/2.7/2.7.0/+download/bzr-2.7.0.tar.gz
@@ -66,7 +69,8 @@ EOF
 [student@localhost ~]$ tar -xvf bzr.tar.gz
 
 ```
-### Pre Docker - Step 5
+### Pre Docker - Step 4
+<a name="pre-docker-step-4"></a>
 ```shell
 #Download and build the gochat application
 [student@localhost ~]$ cd ~
@@ -75,7 +79,8 @@ EOF
 
 [student@localhost ~]$ go install github.com/rhtps/gochat
 ```
-### Pre Docker - Step 6
+### Pre Docker - Step 5
+<a name="pre-docker-step-5"></a>
 ```shell
 [student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
 ```
