@@ -91,12 +91,14 @@ EOF
 ### Dockerfile - Step 1
 Start the CDK and instal CLI tools.
 ```shell
-[student@localhost ~]$ ~/cdk/components/rhel/rhel-ose/
+[student@localhost ~]$ cd ~/cdk/components/rhel/rhel-ose/
 
 [student@localhost rhel-ose]$ vagrant up
 
 #==> default: Registering box with vagrant-registration...
 #    default: Would you like to register the system now (default: yes)? [y|n] n
+
+[student@localhost rhel-ose]$ eval "$(vagrant service-manager env docker)"
 
 [student@localhost rhel-ose]$ eval "$(VAGRANT_NO_COLOR=1 vagrant service-manager install-cli docker | tr -d '\r')"
 
