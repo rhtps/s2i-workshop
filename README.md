@@ -149,8 +149,6 @@ Start the CDK and instal CLI tools.
 
 [student@localhost ~]$ cd $GOPATH/src/github.com/openshift/source-to-image
 
-[student@localhost source-to-image]$ export PATH=$PATH:$GOPATH/src/github.com/openshift/source-to-image/_output/local/bin/linux/amd64/
-
 [student@localhost source-to-image]$ hack/build-go.sh
 ```
 <a name="s2i-step-2"></a>
