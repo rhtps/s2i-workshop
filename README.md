@@ -35,6 +35,41 @@ This document contains the code/configuration snippets corresponding to the work
 	- [Automation - Step 4](#automation-step-4)
 	- [Automation - Step 5](#automation-step-5)
 	- [Automation - Step 6](#automation-step-6)
+	- [Automation - Step 9](#automation-step-9)
+
+<!-- /TOC -->!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Pre Docker](#pre-docker)
+	- [Pre Docker - Step 1](#pre-docker-step-1)
+	- [Pre Docker - Step 2](#pre-docker-step-2)
+	- [Pre Docker - Step 3](#pre-docker-step-3)
+	- [Pre Docker - Step 4](#pre-docker-step-4)
+	- [Pre Docker - Step 5](#pre-docker-step-5)
+- [Option 1 - Dockerfile](#option-1-dockerfile)
+	- [Dockerfile - Step 1](#dockerfile-step-1)
+	- [Dockerfile - Step 2](#dockerfile-step-2)
+	- [Dockerfile - Step 3](#dockerfile-step-3)
+	- [Dockerfile - Step 4](#dockerfile-step-4)
+	- [Dockerfile - Step 5](#dockerfile-step-5)
+- [Option 2 - Source-to-Image (S2I)](#option-2-source-to-image-s2i)
+	- [S2I - Step 1](#s2i-step-1)
+	- [S2I - Step 2](#s2i-step-2)
+	- [S2I - Step 3](#s2i-step-3)
+	- [S2I - Step 4](#s2i-step-4)
+	- [S2I - Step 5](#s2i-step-5)
+	- [S2I - Step 6](#s2i-step-6)
+	- [S2I - Step 7](#s2i-step-7)
+	- [S2I - Step 8](#s2i-step-8)
+	- [S2I - Step 9](#s2i-step-9)
+	- [S2I - Step 10](#s2i-step-10)
+- [Automation in OpenShift](#automation-in-openshift)
+	- [Automation - Step 1](#automation-step-1)
+	- [Automation - Step 2](#automation-step-2)
+	- [Automation - Step 3](#automation-step-3)
+	- [Automation - Step 4](#automation-step-4)
+	- [Automation - Step 5](#automation-step-5)
+	- [Automation - Step 6](#automation-step-6)
+	- [Automation - Step 9](#automation-step-9)
 
 <!-- /TOC -->
 <a name="pre-docker"></a>
@@ -84,7 +119,7 @@ EOF
 <a name="pre-docker-step-5"></a>
 ### Pre Docker - Step 5
 ```shell
-[student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd
+[student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd -v=2 -stderrthreshold=INFO
 ```
 <a name="option-1-dockerfile"></a>
 ## Option 1 - Dockerfile
@@ -487,6 +522,7 @@ Login to https://10.1.2.2:8443
 
 Now we are going to deploy our application.
 
+### Automation - Step 9
 Application Source URL: **https://github.com/rhtps/gochat**
 
 Application Source Branch: (blank)
