@@ -523,7 +523,7 @@ Login to https://10.1.2.2:8443
 Now we are going to deploy our application.
 
 ### Automation - Step 9
-Application Source URL: **https://github.com/rhtps/gochat**
+Application Source URL: **https://github.com/rhtps/gochat.git**
 
 Application Source Branch: (blank)
 
