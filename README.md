@@ -119,7 +119,7 @@ EOF
 <a name="pre-docker-step-5"></a>
 ### Pre Docker - Step 5
 ```shell
-[student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd -v=2 -stderrthreshold=INFO
+[student@localhost ~]$ gochat -host=localhost:8080 -callBackHost=http://localhost:8080 -templatePath=$GOPATH/src/github.com/rhtps/gochat/templates/ -htpasswdPath=$GOPATH/src/github.com/rhtps/gochat/htpasswd -avatarPath=$GOPATH/src/github.com/rhtps/gochat/avatars -v=2 -stderrthreshold=INFO
 ```
 <a name="option-1-dockerfile"></a>
 ## Option 1 - Dockerfile
